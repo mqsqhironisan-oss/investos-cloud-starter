@@ -1,136 +1,92 @@
-
 """
-週次パイプライン（スタブ）
-- このスターターは「構造」を提供する。データソースは後で差し替え可能。
-- 出力：out/theme_strength.csv, out/scores.csv, out/signals.csv, out/orders.csv, out/predictions.csv
+週次パイプライン（オーケストレーション）
+責務：各モジュールを呼び出して、データ取得→分析→出力を実行
 """
+import logging
+import sys
 from pathlib import Path
-import pandas as pd
 import datetime as dt
 import yaml
-import os
-import math
-import random
-from prediction_engine import generate_predictions_for_stocks, get_stock_recommendations
 
+# ロギング設定
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+logger = logging.getLogger(__name__)
+
+# パス設定
 BASE = Path(__file__).resolve().parents[1]
 OUT = BASE / "out"
 CFG = BASE / "config.yaml"
 
-THEMES = ["半導体","AIインフラ","レアメタル","ロボティクス"]
+# モジュールインポート
+from data_sources import price_source, macro_source, filings_source
+from models import theme_strength, screener, scoring, risk_guard
+from exporters import csv_export
 
-def load_cfg():
+def load_config():
+    """設定ファイルを読み込み"""
     with open(CFG, "r", encoding="utf-8") as f:
         return yaml.safe_load(f)
 
-def theme_strength_stub(asof: dt.date) -> pd.DataFrame:
-    # TODO: 実装：指数/代表銘柄群/マクロ/公式資料テキストで算出
-    # 今はダミー（構造確認用）
-    rows = []
-    for t in THEMES:
-        rows.append({"asof": asof.isoformat(), "theme": t, "strength": round(random.uniform(40, 80), 2)})
-    df = pd.DataFrame(rows).sort_values("strength", ascending=False)
-    return df
-
-def screening_stub(theme: str) -> list[str]:
-    # TODO: 実装：財務＋トレンド＋流動性で日米スクリーニング
-    # 今はダミーのシンボル
-    if theme == "半導体":
-        return ["NVDA","TSM","ASML","8035","6857"]
-    if theme == "AIインフラ":
-        return ["MSFT","AMZN","GOOGL","9432","9984"]
-    if theme == "レアメタル":
-        return ["FCX","BHP","RIO","5713","5802"]
-    if theme == "ロボティクス":
-        return ["FANUY","ABB","TER","6954","6146"]
-    return []
-
-def build_signals(asof: dt.date, top_theme: str, cfg: dict) -> pd.DataFrame:
-    stock_monthly = float(os.getenv("STOCK_MONTHLY_JPY", cfg["execution"]["stock_monthly_jpy"]))
-    extra = float(os.getenv("EXTRA_CASH_JPY", cfg["execution"]["extra_cash_jpy"]))
-
-    # ルール：月5,000円はトップテーマの上位1銘柄へ
-    picks = screening_stub(top_theme)
-    main = picks[0] if picks else ""
-
-    rows = []
-    if main:
-        rows.append({
-            "asof": asof.isoformat(),
-            "symbol": main,
-            "action": "買う/追加",
-            "score": 80.0,
-            "theme": top_theme,
-            "reason": "TopTheme+TopPick",
-            "side": "BUY",
-            "qty_jpy": int(stock_monthly),
-        })
-    if extra and len(picks) > 1:
-        rows.append({
-            "asof": asof.isoformat(),
-            "symbol": picks[1],
-            "action": "追加(余力)",
-            "score": 75.0,
-            "theme": top_theme,
-            "reason": "TopTheme+ExtraCash",
-            "side": "BUY",
-            "qty_jpy": int(extra),
-        })
-    return pd.DataFrame(rows)
-
-def build_orders(asof: dt.date, signals: pd.DataFrame) -> pd.DataFrame:
-    # B運用：CSVを作り、手動発注 or RSSに流す
-    rows = []
-    for _, r in signals.iterrows():
-        rows.append({
-            "asof": asof.isoformat(),
-            "symbol": r["symbol"],
-            "market": "AUTO",
-            "side": r["side"],
-            "order_type": "LIMIT",
-            "limit_price": "",
-            "qty": r["qty_jpy"],
-            "note": r["reason"],
-        })
-    return pd.DataFrame(rows)
-
 def main():
-    cfg = load_cfg()
-    asof = dt.date.today()
-    OUT.mkdir(exist_ok=True)
-
-    ts = theme_strength_stub(asof)
-    ts.to_csv(OUT/"theme_strength.csv", index=False, encoding="utf-8")
-
-    top_theme = ts.iloc[0]["theme"] if len(ts) else THEMES[0]
-    signals = build_signals(asof, top_theme, cfg)
-    signals.to_csv(OUT/"signals.csv", index=False, encoding="utf-8")
-
-    orders = build_orders(asof, signals)
-    orders.to_csv(OUT/"orders.csv", index=False, encoding="utf-8")
-
-    # scores.csv は将来拡張
-    pd.DataFrame([{"asof": asof.isoformat(), "note": "stub"}]).to_csv(OUT/"scores.csv", index=False, encoding="utf-8")
-
-    # AI株価予想の生成
-    # 全テーマから銘柄を収集して予想を生成
-    all_stocks = []
-    for theme in THEMES:
-        stocks = screening_stub(theme)
-        for symbol in stocks:
-            all_stocks.append((symbol, theme))
-    
-    # 予想を生成
-    predictions = generate_predictions_for_stocks(all_stocks, asof)
-    predictions.to_csv(OUT/"predictions.csv", index=False, encoding="utf-8")
-    
-    # 推奨銘柄を抽出（信頼度が高いBUY銘柄）
-    recommendations = get_stock_recommendations(predictions, top_n=10)
-    recommendations.to_csv(OUT/"recommendations.csv", index=False, encoding="utf-8")
-
-    print("weekly pipeline done", asof, top_theme)
-    print(f"predictions generated: {len(predictions)} stocks")
-    print(f"top recommendations: {len(recommendations)} stocks")
+    """週次パイプラインのメイン処理"""
+    try:
+        logger.info("=== Weekly Pipeline Started ===")
+        
+        # 設定読み込み
+        cfg = load_config()
+        asof = dt.date.today()
+        OUT.mkdir(exist_ok=True)
+        
+        # 1. データ取得フェーズ
+        logger.info("Phase 1: Data Collection")
+        macro_data = macro_source.fetch_macro_indicators()
+        
+        # 2. テーマ強度計算
+        logger.info("Phase 2: Theme Strength Calculation")
+        theme_df = theme_strength.calculate_theme_strength(asof, {}, macro_data)
+        csv_export.export_theme_strength(theme_df, OUT)
+        
+        # トップテーマを取得
+        top_theme = theme_df.iloc[0]["theme"] if len(theme_df) > 0 else "半導体"
+        logger.info(f"Top theme: {top_theme}")
+        
+        # 3. 銘柄スクリーニング
+        logger.info("Phase 3: Stock Screening")
+        symbols = screener.screen_stocks(top_theme, {}, {})
+        logger.info(f"Screened {len(symbols)} stocks")
+        
+        # 価格データと開示情報を取得
+        price_data = price_source.fetch_price_data(symbols)
+        filings_data = filings_source.fetch_filings_data(symbols)
+        
+        # 4. スコアリングとシグナル生成
+        logger.info("Phase 4: Scoring & Signal Generation")
+        signals = scoring.score_stocks(asof, top_theme, symbols, price_data, filings_data, cfg)
+        
+        # 5. リスク管理
+        logger.info("Phase 5: Risk Management")
+        signals = risk_guard.apply_risk_controls(signals, cfg)
+        csv_export.export_signals(signals, OUT)
+        
+        # 6. 注文生成と出力
+        logger.info("Phase 6: Order Generation")
+        orders = csv_export.build_orders(asof, signals)
+        csv_export.export_orders(orders, OUT)
+        
+        # スコア詳細（将来拡張用）
+        csv_export.export_scores(asof, OUT)
+        
+        logger.info(f"=== Weekly Pipeline Completed: {asof}, Top Theme: {top_theme} ===")
+        
+    except Exception as e:
+        logger.error(f"Pipeline failed with error: {e}", exc_info=True)
+        raise
 
 if __name__ == "__main__":
     main()
