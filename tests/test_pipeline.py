@@ -5,6 +5,7 @@ import pytest
 from pathlib import Path
 import subprocess
 import pandas as pd
+import os
 
 BASE = Path(__file__).resolve().parents[1]
 OUT = BASE / "out"
@@ -69,3 +70,28 @@ def test_orders_csv_structure():
     
     # データが存在することを確認（最低1件）
     assert len(df) > 0, "orders.csv is empty"
+
+def test_pipeline_error_handling_missing_config():
+    """設定ファイルがない場合のエラーハンドリングを確認"""
+    # config.yamlを一時的にリネーム
+    config_path = BASE / "config.yaml"
+    config_backup = BASE / "config.yaml.backup"
+    
+    if config_path.exists():
+        config_path.rename(config_backup)
+    
+    try:
+        result = subprocess.run(
+            ["python", str(BASE / "src" / "pipeline_weekly.py")],
+            cwd=str(BASE),
+            capture_output=True,
+            text=True
+        )
+        
+        # エラーで終了すること
+        assert result.returncode != 0, "Pipeline should fail without config.yaml"
+        
+    finally:
+        # 元に戻す
+        if config_backup.exists():
+            config_backup.rename(config_path)

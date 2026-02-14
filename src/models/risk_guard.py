@@ -14,13 +14,13 @@ def apply_risk_controls(signals: pd.DataFrame, cfg: dict, portfolio_state: Dict 
     Args:
         signals: シグナルDataFrame
         cfg: 設定（risk: dd_warn, dd_stop, max_weight）
-        portfolio_state: ポートフォリオ状態（オプション）
+        portfolio_state: ポートフォリオ状態（将来実装用、現在は未使用）
     
     Returns:
         リスク管理適用後のシグナルDataFrame
     
     TODO: 実装の詳細化
-    - ドローダウン制御（DD警告/停止）
+    - portfolio_stateを使用したドローダウン制御（DD警告/停止）
     - 最大ポジションサイズ制限
     - 構造破壊検知（テーマ強度低下＋イベント悪化）
     - トレンド破壊検知
@@ -29,7 +29,7 @@ def apply_risk_controls(signals: pd.DataFrame, cfg: dict, portfolio_state: Dict 
     logger.info(f"Applying risk controls to {len(signals)} signals")
     
     # スタブ: そのまま返す（リスク管理は将来実装）
-    # TODO: ポートフォリオ状態を追跡し、DD制御を実装
+    # TODO: ポートフォリオ状態（portfolio_state）を追跡し、DD制御を実装
     
     dd_warn = cfg["risk"]["dd_warn"]
     dd_stop = cfg["risk"]["dd_stop"]

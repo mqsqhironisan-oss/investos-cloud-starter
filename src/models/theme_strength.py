@@ -5,7 +5,6 @@ import logging
 import pandas as pd
 import datetime as dt
 import random
-from typing import List
 
 logger = logging.getLogger(__name__)
 
