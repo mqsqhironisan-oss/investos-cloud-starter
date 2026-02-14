@@ -63,11 +63,12 @@ def main():
         
         # 価格データと開示情報を取得
         price_data = price_source.fetch_price_data(symbols)
+        price_history = price_source.fetch_price_history(symbols, days=90)
         filings_data = filings_source.fetch_filings_data(symbols)
         
         # 4. スコアリングとシグナル生成
         logger.info("Phase 4: Scoring & Signal Generation")
-        signals = scoring.score_stocks(asof, top_theme, symbols, price_data, filings_data, cfg)
+        signals = scoring.score_stocks(asof, top_theme, symbols, price_data, price_history, filings_data, cfg)
         
         # 5. リスク管理
         logger.info("Phase 5: Risk Management")
