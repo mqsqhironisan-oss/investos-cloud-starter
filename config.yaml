@@ -17,7 +17,7 @@ strategy:
     tech: 0.30
     event: 0.20
     macro: 0.10
-  mode: normal  # normal or return_first (攻撃型：加速を強く優先)
+  mode: return_first  # normal or return_first (攻撃型：加速を強く優先)
 risk:
   dd_warn: -0.10
   dd_stop: -0.15
