@@ -2,7 +2,7 @@
 """
 週次パイプライン（スタブ）
 - このスターターは「構造」を提供する。データソースは後で差し替え可能。
-- 出力：out/theme_strength.csv, out/scores.csv, out/signals.csv, out/orders.csv
+- 出力：out/theme_strength.csv, out/scores.csv, out/signals.csv, out/orders.csv, out/predictions.csv
 """
 from pathlib import Path
 import pandas as pd
@@ -11,6 +11,7 @@ import yaml
 import os
 import math
 import random
+from prediction_engine import generate_predictions_for_stocks, get_stock_recommendations
 
 BASE = Path(__file__).resolve().parents[1]
 OUT = BASE / "out"
@@ -111,7 +112,25 @@ def main():
     # scores.csv は将来拡張
     pd.DataFrame([{"asof": asof.isoformat(), "note": "stub"}]).to_csv(OUT/"scores.csv", index=False, encoding="utf-8")
 
+    # AI株価予想の生成
+    # 全テーマから銘柄を収集して予想を生成
+    all_stocks = []
+    for theme in THEMES:
+        stocks = screening_stub(theme)
+        for symbol in stocks:
+            all_stocks.append((symbol, theme))
+    
+    # 予想を生成
+    predictions = generate_predictions_for_stocks(all_stocks, asof)
+    predictions.to_csv(OUT/"predictions.csv", index=False, encoding="utf-8")
+    
+    # 推奨銘柄を抽出（信頼度が高いBUY銘柄）
+    recommendations = get_stock_recommendations(predictions, top_n=10)
+    recommendations.to_csv(OUT/"recommendations.csv", index=False, encoding="utf-8")
+
     print("weekly pipeline done", asof, top_theme)
+    print(f"predictions generated: {len(predictions)} stocks")
+    print(f"top recommendations: {len(recommendations)} stocks")
 
 if __name__ == "__main__":
     main()
