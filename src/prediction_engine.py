@@ -30,7 +30,10 @@ def calculate_momentum(prices: List[float]) -> float:
     """モメンタムを計算（価格変化率）"""
     if len(prices) < 2:
         return 0.0
-    recent_change = (prices[-1] - prices[-5]) / prices[-5] if len(prices) >= 5 else 0.0
+    if len(prices) >= 5 and prices[-5] != 0:
+        recent_change = (prices[-1] - prices[-5]) / prices[-5]
+    else:
+        recent_change = 0.0
     return recent_change
 
 def generate_prediction(symbol: str, theme: str, asof: dt.date) -> Dict:
@@ -61,24 +64,31 @@ def generate_prediction(symbol: str, theme: str, asof: dt.date) -> Dict:
     momentum = calculate_momentum(historical_prices)
     
     # 予想価格の算出（簡易版：トレンドとモメンタムベース）
+    # モメンタムを予想に反映（強いモメンタムは予想を増幅）
+    momentum_factor = min(abs(momentum), 0.05)  # 最大5%までの影響
+    
     if trend == "UP":
         # 上昇トレンド：1週間で+2-5%, 1ヶ月で+5-15%
-        predicted_1w = current_price * (1 + random.uniform(0.02, 0.05))
-        predicted_1m = current_price * (1 + random.uniform(0.05, 0.15))
+        base_1w = random.uniform(0.02, 0.05)
+        base_1m = random.uniform(0.05, 0.15)
+        predicted_1w = current_price * (1 + base_1w + momentum_factor * 0.5)
+        predicted_1m = current_price * (1 + base_1m + momentum_factor)
         signal = "BUY"
-        confidence = random.uniform(65, 85)
+        confidence = random.uniform(65, 85) + (momentum_factor * 100)
         reason = "上昇トレンド継続。短期MA > 長期MA。モメンタム強い。"
     elif trend == "DOWN":
         # 下降トレンド：1週間で-2-5%, 1ヶ月で-5-15%
-        predicted_1w = current_price * (1 - random.uniform(0.02, 0.05))
-        predicted_1m = current_price * (1 - random.uniform(0.05, 0.15))
+        base_1w = random.uniform(0.02, 0.05)
+        base_1m = random.uniform(0.05, 0.15)
+        predicted_1w = current_price * (1 - base_1w - momentum_factor * 0.5)
+        predicted_1m = current_price * (1 - base_1m - momentum_factor)
         signal = "SELL"
-        confidence = random.uniform(60, 80)
+        confidence = random.uniform(60, 80) + (momentum_factor * 100)
         reason = "下降トレンド。短期MA < 長期MA。売り圧力強い。"
     else:
         # 中立：1週間で±1%, 1ヶ月で±3%
-        predicted_1w = current_price * (1 + random.uniform(-0.01, 0.01))
-        predicted_1m = current_price * (1 + random.uniform(-0.03, 0.03))
+        predicted_1w = current_price * (1 + random.uniform(-0.01, 0.01) + momentum * 0.5)
+        predicted_1m = current_price * (1 + random.uniform(-0.03, 0.03) + momentum)
         signal = "HOLD"
         confidence = random.uniform(50, 70)
         reason = "レンジ相場。様子見推奨。明確なトレンドなし。"
