@@ -42,7 +42,7 @@ def score_stocks(
     logger.info(f"Scoring {len(symbols)} stocks for theme: {top_theme}")
     
     # 加速検知モジュールをインポート
-    from models import acceleration
+    from . import acceleration
     
     # 設定から投資額を取得
     import os
