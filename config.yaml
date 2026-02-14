@@ -1,0 +1,29 @@
+strategy:
+  themes:
+    - name: semis
+      label: 半導体
+      keywords: ["semiconductor","chip","wafer","foundry","fab","SOX"]
+    - name: ai_infra
+      label: AIインフラ
+      keywords: ["datacenter","gpu","accelerator","cloud capex","AI infrastructure"]
+    - name: rare_metals
+      label: レアメタル
+      keywords: ["copper","lithium","nickel","rare earth","gallium"]
+    - name: robotics
+      label: ロボティクス
+      keywords: ["robot","automation","factory automation","logistics automation"]
+  weights:
+    meta: 0.40
+    tech: 0.30
+    event: 0.20
+    macro: 0.10
+risk:
+  dd_warn: -0.10
+  dd_stop: -0.15
+  max_weight: 0.20
+execution:
+  etf_monthly_jpy: 15000
+  etf_sp500_jpy: 10000
+  etf_topix_jpy: 5000
+  stock_monthly_jpy: 5000
+  extra_cash_jpy: 0
