@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIチャット - InvestOS Cloud Starter</title>
+    <link rel="stylesheet" href="chat.css">
+</head>
+<body>
+    <div class="chat-container">
+        <header class="chat-header">
+            <h1>📊 InvestOS AIチャット</h1>
+            <p class="subtitle">現在の市場状態とポートフォリオについて質問できます</p>
+            <a href="index.html" class="back-link">← ダッシュボードに戻る</a>
+        </header>
+
+        <div class="warning-box">
+            <strong>⚠️ 重要</strong>
+            <ul>
+                <li>このチャットは価格予測を行いません</li>
+                <li>現在のレジーム・テーマ強度・シグナル等の状態説明のみ</li>
+                <li>投資判断は必ずご自身で行ってください</li>
+            </ul>
+        </div>
+
+        <div id="chat-messages" class="chat-messages">
+            <div class="message assistant">
+                <div class="message-content">
+                    <p>こんにちは！現在の市場状態やポートフォリオについてお答えします。</p>
+                    <p>例: 「今週のレジームは？」「トップテーマは何？」「今のシグナルは？」</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-input-area">
+            <div id="loading" class="loading" style="display: none;">
+                <span>考え中...</span>
+            </div>
+            <div class="input-row">
+                <input type="text" id="user-input" placeholder="質問を入力してください..." />
+                <button id="send-btn">送信</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="chat.js"></script>
+</body>
+</html>

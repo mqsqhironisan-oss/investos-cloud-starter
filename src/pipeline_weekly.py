@@ -27,6 +27,7 @@ CFG = BASE / "config.yaml"
 from data_sources import price_source, macro_source, filings_source
 from models import theme_strength, screener, scoring, risk_guard, learning
 from exporters import csv_export
+from regime import detect_regime, RegimeState
 
 def load_config():
     """設定ファイルを読み込み"""
@@ -42,6 +43,18 @@ def main():
         cfg = load_config()
         asof = dt.date.today()
         OUT.mkdir(exist_ok=True)
+        
+        # 0. レジーム判定
+        logger.info("Phase 0: Regime Detection")
+        regime_result = detect_regime(cfg)
+        csv_export.export_regime(regime_result, asof, OUT)
+        
+        # docs用にもコピー
+        docs_dir = BASE / "docs" / "data"
+        docs_dir.mkdir(parents=True, exist_ok=True)
+        csv_export.export_regime(regime_result, asof, docs_dir)
+        
+        logger.info(f"Regime: {regime_result['state'].value} (score: {regime_result['score']})")
         
         # 1. データ取得フェーズ
         logger.info("Phase 1: Data Collection")
@@ -77,7 +90,17 @@ def main():
         
         # 6. 注文生成と出力
         logger.info("Phase 6: Order Generation")
-        orders = csv_export.build_orders(asof, signals)
+        
+        # RISK_OFF の場合は新規買い注文を停止
+        if regime_result['state'] == RegimeState.RISK_OFF:
+            logger.info("RISK_OFF detected: Filtering out BUY orders")
+            # SELLのみ残す（保有継続）
+            signals_filtered = signals[signals['side'] != 'BUY'].copy()
+            orders = csv_export.build_orders(asof, signals_filtered)
+            logger.info(f"Filtered orders: {len(orders)} (removed BUY orders due to RISK_OFF)")
+        else:
+            orders = csv_export.build_orders(asof, signals)
+        
         csv_export.export_orders(orders, OUT)
         
         # スコア詳細（将来拡張用）
