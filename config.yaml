@@ -41,6 +41,19 @@ learn:
     min: 0.10              # テーマ重みの下限
     max: 0.50              # テーマ重みの上限
   objective: return_first  # return_first or sharpe
+regime:
+  enabled: true                # レジーム判定を有効化
+  threshold_on: 2              # RISK_ONになる閾値
+  threshold_off: -2            # RISK_OFFになる閾値
+  use_vix: true                # VIXを使用（取得失敗時は影響なし）
+  use_tnx: true                # 10年債金利を使用
+  use_usdjpy: true             # USD/JPYを使用
+  window_weeks_ma: 40          # 移動平均の週数（200日≒40週）
+  vix_threshold: 25            # VIXの警戒閾値
+  rate_shock_weeks: 4          # 金利急変判定の週数
+  rate_shock_threshold: 0.5    # 金利変化の閾値
+  fx_shock_weeks: 4            # 為替急変判定の週数
+  fx_shock_threshold: 5.0      # 為替変化率の閾値（%）
 execution:
   etf_monthly_jpy: 15000
   etf_sp500_jpy: 10000

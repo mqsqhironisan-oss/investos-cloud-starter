@@ -34,6 +34,22 @@ def export_scores(asof: dt.date, output_dir: Path) -> None:
     )
     logger.info("Exported scores.csv (stub)")
 
+def export_regime(regime_result: dict, asof: dt.date, output_dir: Path) -> None:
+    """レジーム判定結果をCSV出力"""
+    filepath = output_dir / "regime.csv"
+    
+    # Create a row with regime data
+    row = {
+        "date": asof.isoformat(),
+        "regime": regime_result['state'].value,
+        "score": regime_result['score'],
+        "reasons": "; ".join(regime_result['reasons'])
+    }
+    
+    df = pd.DataFrame([row])
+    df.to_csv(filepath, index=False, encoding="utf-8")
+    logger.info(f"Exported regime.csv: {regime_result['state'].value} (score: {regime_result['score']})")
+
 def build_orders(asof: dt.date, signals: pd.DataFrame) -> pd.DataFrame:
     """
     シグナルから注文データを生成

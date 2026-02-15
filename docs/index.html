@@ -95,6 +95,22 @@
         
         <div class="cards">
             <div class="card">
+                <div class="card-icon">🎯</div>
+                <h2>レジーム判定（Regime）</h2>
+                <p>市場状態を判定し、買って良い週/買うな週を識別します。予測ではなく、現在の状態をルールベースで判定。</p>
+                <p><strong>今週：</strong><span id="current-regime" style="font-weight: bold; font-size: 1.2em;">確認中...</span></p>
+                <p id="regime-details" style="font-size: 0.9em; color: #666; margin-top: 10px;"></p>
+            </div>
+            
+            <div class="card">
+                <div class="card-icon">💬</div>
+                <h2>AIチャット</h2>
+                <p>現在のレジーム・テーマ強度・シグナル等について質問できます。価格予測ではなく、状態説明のみ。</p>
+                <p><strong>注意：</strong>投資判断はご自身で行ってください。</p>
+                <a href="chat.html" class="btn">チャットを開く</a>
+            </div>
+            
+            <div class="card">
                 <div class="card-icon">🚀</div>
                 <h2>加速検知（Acceleration）</h2>
                 <p>現在の市場状態を判定する加速検知システム。ブレイクアウト、出来高異常、モメンタム加速を検知します。</p>
@@ -122,6 +138,7 @@
         <div class="info-box">
             <h3>📈 現在の状態</h3>
             <ul>
+                <li>レジーム判定: 有効 - 市場環境に応じた買い/待機を判断</li>
                 <li>加速検知: 有効 - ブレイクアウト/出来高/モメンタムを監視</li>
                 <li>学習レイヤー: シャドーモード - 重み提案のみ（本番影響なし）</li>
                 <li>自動更新: 毎週月曜 9:00 JST</li>
@@ -133,6 +150,7 @@
             <strong>⚠️ 重要な注意事項</strong>
             <ul style="margin-top: 10px; margin-left: 20px;">
                 <li>このシステムは価格予測を行いません</li>
+                <li>レジーム判定は現在の市場環境の状態判定のみです</li>
                 <li>加速検知は「現在の状態」を判定するのみです</li>
                 <li>学習レイヤーは過去データに基づく重み最適化のみです</li>
                 <li>投資判断は最終的にご自身で行ってください</li>
@@ -157,6 +175,7 @@
     </div>
     
     <script>
+        // Load last update date
         fetch('data/weights_champion.csv')
             .then(response => response.text())
             .then(data => {
@@ -169,6 +188,40 @@
             })
             .catch(() => {
                 document.getElementById('last-update').textContent = '不明';
+            });
+        
+        // Load current regime
+        fetch('data/regime.csv')
+            .then(response => response.text())
+            .then(data => {
+                const lines = data.trim().split('\n');
+                if (lines.length > 1) {
+                    const lastLine = lines[lines.length - 1];
+                    const parts = lastLine.split(',');
+                    const regime = parts[1] || 'NEUTRAL';
+                    const score = parts[2] || '0';
+                    const reasons = parts[3] || '';
+                    
+                    const regimeEl = document.getElementById('current-regime');
+                    const detailsEl = document.getElementById('regime-details');
+                    
+                    regimeEl.textContent = regime;
+                    
+                    // Color code based on regime
+                    if (regime === 'RISK_ON') {
+                        regimeEl.style.color = '#4CAF50';
+                    } else if (regime === 'RISK_OFF') {
+                        regimeEl.style.color = '#f44336';
+                    } else {
+                        regimeEl.style.color = '#ff9800';
+                    }
+                    
+                    detailsEl.textContent = `スコア: ${score} | ${reasons}`;
+                }
+            })
+            .catch(() => {
+                document.getElementById('current-regime').textContent = '確認できません';
+                document.getElementById('regime-details').textContent = 'データを読み込めませんでした';
             });
     </script>
 </body>
