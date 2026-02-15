@@ -164,10 +164,11 @@ function addMessage(role, content) {
  * Supports basic markdown: **bold**, `code`, and line breaks
  */
 function formatMessage(text) {
-    // Escape HTML first
+    // Escape HTML first to prevent XSS
     const escaped = escapeHTML(text);
 
-    // Apply simple markdown-like formatting
+    // Apply simple markdown-like formatting with safe replacements
+    // These patterns are designed to be XSS-safe as the text is already escaped
     let formatted = escaped
         .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')  // **bold**
         .replace(/`(.+?)`/g, '<code>$1</code>')  // `code`

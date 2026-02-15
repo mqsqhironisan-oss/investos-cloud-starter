@@ -139,6 +139,11 @@ def calculate_fx_score(usdjpy_data: pd.Series, weeks: int, threshold_pct: float)
     try:
         current = usdjpy_data.iloc[-1]
         past = usdjpy_data.iloc[-(weeks + 1)]
+        
+        # Guard against division by zero
+        if past == 0:
+            return 0, "USDJPY: invalid data (zero)"
+        
         change_pct = ((current - past) / past) * 100
         
         if abs(change_pct) > threshold_pct:
