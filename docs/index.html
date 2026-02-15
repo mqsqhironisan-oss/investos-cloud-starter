@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InvestOS Cloud Starter - Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        header {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        h1 { color: #333; font-size: 2.5em; margin-bottom: 10px; }
+        .subtitle { color: #666; font-size: 1.1em; }
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 15px 40px rgba(0,0,0,0.3); }
+        .card-icon { font-size: 3em; margin-bottom: 15px; }
+        .card h2 { color: #333; margin-bottom: 15px; font-size: 1.5em; }
+        .card p { color: #666; line-height: 1.6; margin-bottom: 20px; }
+        .btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: transform 0.2s ease;
+        }
+        .btn:hover { transform: scale(1.05); }
+        .info-box {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .info-box h3 { color: #333; margin-bottom: 15px; font-size: 1.3em; }
+        .info-box ul { list-style: none; padding-left: 0; }
+        .info-box li { color: #666; padding: 8px 0; border-bottom: 1px solid #eee; }
+        .info-box li:last-child { border-bottom: none; }
+        .info-box li::before { content: "✓ "; color: #4CAF50; font-weight: bold; margin-right: 8px; }
+        .status {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        .status.active { background: #e8f5e9; color: #4CAF50; }
+        .status.shadow { background: #fff3e0; color: #ff9800; }
+        footer { text-align: center; color: white; margin-top: 30px; padding: 20px; }
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .warning strong { color: #856404; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 InvestOS Cloud Starter</h1>
+            <p class="subtitle">加速検知 × 学習レイヤー × 自動更新</p>
+            <div style="margin-top: 15px;">
+                <span class="status active">Acceleration Active</span>
+                <span class="status shadow">Learning Shadow Mode</span>
+            </div>
+        </header>
+        
+        <div class="cards">
+            <div class="card">
+                <div class="card-icon">🚀</div>
+                <h2>加速検知（Acceleration）</h2>
+                <p>現在の市場状態を判定する加速検知システム。ブレイクアウト、出来高異常、モメンタム加速を検知します。</p>
+                <p><strong>重要：</strong>価格予測ではなく、現在の状態を検知します。</p>
+                <a href="acceleration.md" class="btn">詳細を見る</a>
+            </div>
+            
+            <div class="card">
+                <div class="card-icon">🧠</div>
+                <h2>学習レイヤー（Learning）</h2>
+                <p>過去52週の実績に基づいてテーマ重みを最適化。Champion/Challengerパターンで安全に提案。</p>
+                <p><strong>シャドーモード：</strong>提案のみで本番に影響しません。</p>
+                <a href="learning-dashboard.html" class="btn">ダッシュボード</a>
+            </div>
+            
+            <div class="card">
+                <div class="card-icon">⚙️</div>
+                <h2>自動更新（Actions）</h2>
+                <p>GitHub Actionsで毎週月曜9時に自動実行。結果はこのページで確認できます。</p>
+                <p><strong>最終更新：</strong><span id="last-update">確認中...</span></p>
+                <a href="https://github.com/mqsqhironisan-oss/investos-cloud-starter/actions" class="btn" target="_blank">Actions を見る</a>
+            </div>
+        </div>
+        
+        <div class="info-box">
+            <h3>📈 現在の状態</h3>
+            <ul>
+                <li>加速検知: 有効 - ブレイクアウト/出来高/モメンタムを監視</li>
+                <li>学習レイヤー: シャドーモード - 重み提案のみ（本番影響なし）</li>
+                <li>自動更新: 毎週月曜 9:00 JST</li>
+                <li>テスト: 27/27 合格</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <strong>⚠️ 重要な注意事項</strong>
+            <ul style="margin-top: 10px; margin-left: 20px;">
+                <li>このシステムは価格予測を行いません</li>
+                <li>加速検知は「現在の状態」を判定するのみです</li>
+                <li>学習レイヤーは過去データに基づく重み最適化のみです</li>
+                <li>投資判断は最終的にご自身で行ってください</li>
+            </ul>
+        </div>
+        
+        <div class="info-box">
+            <h3>🔗 リンク</h3>
+            <ul>
+                <li><a href="learning-dashboard.html">学習ダッシュボード（Champion vs Challenger）</a></li>
+                <li><a href="acceleration.md">加速検知の詳細ドキュメント</a></li>
+                <li><a href="learning.md">学習レイヤーの詳細ドキュメント</a></li>
+                <li><a href="operations.md">運用手順</a></li>
+                <li><a href="https://github.com/mqsqhironisan-oss/investos-cloud-starter">GitHubリポジトリ</a></li>
+            </ul>
+        </div>
+        
+        <footer>
+            <p>InvestOS Cloud Starter - Powered by GitHub Actions</p>
+            <p style="margin-top: 10px; font-size: 0.9em;">状態検知・重み最適化のみ。価格予測なし。</p>
+        </footer>
+    </div>
+    
+    <script>
+        fetch('data/weights_champion.csv')
+            .then(response => response.text())
+            .then(data => {
+                const lines = data.trim().split('\n');
+                if (lines.length > 1) {
+                    const lastLine = lines[lines.length - 1];
+                    const date = lastLine.split(',')[0];
+                    document.getElementById('last-update').textContent = date;
+                }
+            })
+            .catch(() => {
+                document.getElementById('last-update').textContent = '不明';
+            });
+    </script>
+</body>
+</html>

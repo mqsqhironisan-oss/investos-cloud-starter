@@ -17,10 +17,30 @@ strategy:
     tech: 0.30
     event: 0.20
     macro: 0.10
+  mode: normal  # normal or return_first (攻撃型：加速を強く優先)
 risk:
   dd_warn: -0.10
   dd_stop: -0.15
   max_weight: 0.20
+acceleration:
+  enabled: true
+  breakout_days: 60        # ブレイクアウト判定期間
+  volume_multiplier: 1.5   # 出来高異常の倍率
+  max_volatility: 0.03     # 許容ボラティリティ（日次標準偏差）
+  weights:
+    breakout: 40           # ブレイクアウトの重み
+    volume: 30             # 出来高の重み
+    momentum: 30           # モメンタムの重み
+  score_impact: 10         # スコアへの最大影響（0-10点）
+learn:
+  enabled: true            # 学習レイヤーの有効化
+  mode: shadow             # shadow固定（本番環境には影響しない）
+  max_delta: 0.10          # 週次最大変更幅（10%）
+  window_weeks: 52         # 評価期間（週）
+  bounds:
+    min: 0.10              # テーマ重みの下限
+    max: 0.50              # テーマ重みの上限
+  objective: return_first  # return_first or sharpe
 execution:
   etf_monthly_jpy: 15000
   etf_sp500_jpy: 10000

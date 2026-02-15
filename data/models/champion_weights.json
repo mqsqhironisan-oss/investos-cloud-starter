@@ -1,0 +1,13 @@
+{
+  "weights": {
+    "semis": 0.25,
+    "ai_infra": 0.25,
+    "rare_metals": 0.25,
+    "robotics": 0.25
+  },
+  "updated_at": "2026-02-15T00:00:00",
+  "metadata": {
+    "source": "initial",
+    "note": "Equal weight starting point"
+  }
+}
