@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InvestOS Learning Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #666;
+            margin-top: 30px;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .champion {
+            background-color: #e8f5e9;
+        }
+        .challenger {
+            background-color: #fff3e0;
+        }
+        .info {
+            background-color: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 4px solid #2196F3;
+        }
+        .warning {
+            background-color: #fff3cd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 4px solid #ffc107;
+        }
+        .timestamp {
+            color: #999;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+        .weight-bar {
+            display: inline-block;
+            height: 20px;
+            background-color: #4CAF50;
+            border-radius: 3px;
+            margin-left: 10px;
+        }
+        .delta {
+            color: #666;
+            font-size: 0.9em;
+        }
+        .delta.positive {
+            color: #4CAF50;
+        }
+        .delta.negative {
+            color: #f44336;
+        }
+    </style>
+</head>
+<body>
+    <h1>📊 InvestOS Learning Dashboard</h1>
+    
+    <div class="info">
+        <strong>ℹ️ シャドーモード</strong><br>
+        学習レイヤーはテーマ重みの提案のみを行い、実際の売買判断には影響しません。<br>
+        Champion（本番稼働中）とChallenger（学習提案）を比較し、評価を経てChampionを更新します。
+    </div>
+
+    <div class="container">
+        <h2>🏆 Champion Weights（本番稼働中）</h2>
+        <p>現在、実際の投資判断に使用されているテーマ重みです。</p>
+        <table id="champion-table">
+            <thead>
+                <tr>
+                    <th>テーマ</th>
+                    <th>重み</th>
+                    <th>割合</th>
+                    <th>ビジュアル</th>
+                </tr>
+            </thead>
+            <tbody id="champion-body">
+                <tr><td colspan="4">データ読み込み中...</td></tr>
+            </tbody>
+        </table>
+        <div class="timestamp" id="champion-timestamp">最終更新: --</div>
+    </div>
+
+    <div class="container">
+        <h2>🔬 Challenger Weights（学習提案）</h2>
+        <p>学習アルゴリズムが過去52週の実績に基づいて提案する新しい重みです。</p>
+        <table id="challenger-table">
+            <thead>
+                <tr>
+                    <th>テーマ</th>
+                    <th>重み</th>
+                    <th>割合</th>
+                    <th>変化</th>
+                    <th>ビジュアル</th>
+                </tr>
+            </thead>
+            <tbody id="challenger-body">
+                <tr><td colspan="5">データ読み込み中...</td></tr>
+            </tbody>
+        </table>
+        <div class="timestamp" id="challenger-timestamp">最終更新: --</div>
+    </div>
+
+    <div class="warning">
+        <strong>⚠️ 注意事項</strong><br>
+        • Challengerの提案は自動的には採用されません<br>
+        • 評価基準（勝率、リスク指標等）を満たした場合のみ、手動でChampionを更新します<br>
+        • 学習は過去データに基づく最適化であり、未来の価格予測ではありません
+    </div>
+
+    <script>
+        // テーマ名のマッピング
+        const themeLabels = {
+            'semis': '半導体',
+            'ai_infra': 'AIインフラ',
+            'rare_metals': 'レアメタル',
+            'robotics': 'ロボティクス'
+        };
+
+        // Champion重みを読み込み
+        fetch('data/champion_weights.json')
+            .then(response => response.json())
+            .then(data => {
+                const tbody = document.getElementById('champion-body');
+                tbody.innerHTML = '';
+                
+                const weights = data.weights || {};
+                const total = Object.values(weights).reduce((a, b) => a + b, 0);
+                
+                for (const [theme, weight] of Object.entries(weights)) {
+                    const row = tbody.insertRow();
+                    row.className = 'champion';
+                    
+                    const themeLabel = themeLabels[theme] || theme;
+                    const percentage = (weight * 100).toFixed(1);
+                    const barWidth = weight * 400;
+                    
+                    row.innerHTML = `
+                        <td><strong>${themeLabel}</strong></td>
+                        <td>${weight.toFixed(3)}</td>
+                        <td>${percentage}%</td>
+                        <td><div class="weight-bar" style="width: ${barWidth}px;"></div></td>
+                    `;
+                }
+                
+                document.getElementById('champion-timestamp').textContent = 
+                    `最終更新: ${data.updated_at || '--'}`;
+            })
+            .catch(error => {
+                console.error('Error loading champion weights:', error);
+                document.getElementById('champion-body').innerHTML = 
+                    '<tr><td colspan="4">データの読み込みに失敗しました</td></tr>';
+            });
+
+        // Challenger重みを読み込み
+        Promise.all([
+            fetch('data/champion_weights.json').then(r => r.json()),
+            fetch('data/challenger_weights.json').then(r => r.json())
+        ]).then(([championData, challengerData]) => {
+            const tbody = document.getElementById('challenger-body');
+            tbody.innerHTML = '';
+            
+            const championWeights = championData.weights || {};
+            const challengerWeights = challengerData.weights || {};
+            
+            for (const [theme, weight] of Object.entries(challengerWeights)) {
+                const row = tbody.insertRow();
+                row.className = 'challenger';
+                
+                const themeLabel = themeLabels[theme] || theme;
+                const percentage = (weight * 100).toFixed(1);
+                const barWidth = weight * 400;
+                
+                const championWeight = championWeights[theme] || 0;
+                const delta = weight - championWeight;
+                const deltaPercentage = (delta * 100).toFixed(1);
+                const deltaClass = delta > 0 ? 'positive' : (delta < 0 ? 'negative' : '');
+                const deltaSign = delta > 0 ? '+' : '';
+                
+                row.innerHTML = `
+                    <td><strong>${themeLabel}</strong></td>
+                    <td>${weight.toFixed(3)}</td>
+                    <td>${percentage}%</td>
+                    <td><span class="delta ${deltaClass}">${deltaSign}${deltaPercentage}%</span></td>
+                    <td><div class="weight-bar" style="width: ${barWidth}px;"></div></td>
+                `;
+            }
+            
+            document.getElementById('challenger-timestamp').textContent = 
+                `最終更新: ${challengerData.updated_at || '--'}`;
+        }).catch(error => {
+            console.error('Error loading challenger weights:', error);
+            document.getElementById('challenger-body').innerHTML = 
+                '<tr><td colspan="5">データの読み込みに失敗しました</td></tr>';
+        });
+    </script>
+</body>
+</html>

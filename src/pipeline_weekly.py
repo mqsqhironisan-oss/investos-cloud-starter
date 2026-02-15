@@ -25,7 +25,7 @@ CFG = BASE / "config.yaml"
 
 # モジュールインポート
 from data_sources import price_source, macro_source, filings_source
-from models import theme_strength, screener, scoring, risk_guard
+from models import theme_strength, screener, scoring, risk_guard, learning
 from exporters import csv_export
 
 def load_config():
@@ -82,6 +82,33 @@ def main():
         
         # スコア詳細（将来拡張用）
         csv_export.export_scores(asof, OUT)
+        
+        # 7. 学習レイヤー（シャドーモード）
+        learn_cfg = cfg.get('learn', {})
+        if learn_cfg.get('enabled', False):
+            logger.info("Phase 7: Learning Layer (Shadow Mode)")
+            
+            # Champion重みを読み込み（本番で使用）
+            models_dir = BASE / "data" / "models"
+            champion_file = models_dir / "champion_weights.json"
+            champion_weights = learning.load_weights(champion_file)
+            
+            # Challenger重みを生成（学習提案）
+            themes_list = [t['name'] for t in cfg['strategy']['themes']]
+            challenger_weights = learning.update_challenger(
+                BASE, themes_list, price_history, cfg
+            )
+            
+            # 履歴を保存
+            learn_out = OUT / "learn"
+            learning.save_weights_history(learn_out, asof, champion_weights, challenger_weights)
+            
+            # GitHub Pages用にコピー
+            learning.copy_to_docs(BASE)
+            
+            logger.info(f"Learning completed: Champion={champion_weights}, Challenger={challenger_weights}")
+        else:
+            logger.info("Phase 7: Learning Layer (Disabled)")
         
         logger.info(f"=== Weekly Pipeline Completed: {asof}, Top Theme: {top_theme} ===")
         
