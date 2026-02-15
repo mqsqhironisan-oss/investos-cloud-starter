@@ -1,11 +1,11 @@
 {
   "weights": {
-    "semis": 0.30595626243652296,
-    "ai_infra": 0.15787027795942046,
-    "rare_metals": 0.19886792412385984,
-    "robotics": 0.33730553548019665
+    "semis": 0.3145385227815106,
+    "ai_infra": 0.191674000517219,
+    "rare_metals": 0.15779278939728017,
+    "robotics": 0.3359946873039902
   },
-  "updated_at": "2026-02-15T12:53:13.798113",
+  "updated_at": "2026-02-15T12:56:01.665636",
   "metadata": {
     "source": "optimizer",
     "previous_champion": {
