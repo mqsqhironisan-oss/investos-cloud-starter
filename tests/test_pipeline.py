@@ -24,7 +24,7 @@ def test_pipeline_execution():
 
 def test_output_files_exist():
     """必須の出力ファイルが生成されることを確認"""
-    required_files = ["theme_strength.csv", "signals.csv", "orders.csv"]
+    required_files = ["theme_strength.csv", "signals.csv", "orders.csv", "regime.csv"]
     
     for filename in required_files:
         filepath = OUT / filename
@@ -95,3 +95,21 @@ def test_pipeline_error_handling_missing_config():
         # 元に戻す
         if config_backup.exists():
             config_backup.rename(config_path)
+
+def test_regime_csv_structure():
+    """regime.csvの構造を検証"""
+    df = pd.read_csv(OUT / "regime.csv")
+    
+    # 必須カラムの確認
+    required_columns = ["date", "regime", "score", "reasons"]
+    for col in required_columns:
+        assert col in df.columns, f"Missing column: {col}"
+    
+    # データが存在することを確認
+    assert len(df) > 0, "regime.csv is empty"
+    
+    # regimeが有効な値であることを確認
+    valid_regimes = {"RISK_ON", "RISK_OFF", "NEUTRAL"}
+    actual_regime = df.iloc[-1]["regime"]
+    assert actual_regime in valid_regimes, f"Invalid regime: {actual_regime}"
+
