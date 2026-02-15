@@ -1,0 +1,66 @@
+name: Weekly Pipeline Update
+
+on:
+  schedule:
+    # Run every Monday at 9:00 JST (00:00 UTC on Monday)
+    - cron: '0 0 * * 1'
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Need write permission to commit
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+      
+      - name: Run weekly pipeline
+        run: |
+          python src/pipeline_weekly.py
+        env:
+          # Add any environment variables needed
+          TZ: 'Asia/Tokyo'
+      
+      - name: Commit and push results
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          
+          # Stage output files
+          git add out/
+          git add docs/data/
+          
+          # Check if there are changes
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: Update weekly data $(date +'%Y-%m-%d')"
+            git push
+          fi
+      
+      - name: Summary
+        run: |
+          echo "## Pipeline Execution Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Weekly pipeline executed successfully" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Generated Files" >> $GITHUB_STEP_SUMMARY
+          echo "- signals.csv" >> $GITHUB_STEP_SUMMARY
+          echo "- orders.csv" >> $GITHUB_STEP_SUMMARY
+          echo "- theme_strength.csv" >> $GITHUB_STEP_SUMMARY
+          echo "- Learning weights (Champion/Challenger)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "View results: [GitHub Pages](https://mqsqhironisan-oss.github.io/investos-cloud-starter/)" >> $GITHUB_STEP_SUMMARY
