@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>InvestOS Cloud Starter</title>
+    <link rel="stylesheet" href="/app.css" />
+  </head>
+  <body>
+    <main class="page">
+      <header>
+        <div>
+          <p class="eyebrow">Cloudflare Worker / スコアリングデモ</p>
+          <h1>ティッカー → スコア → AI根拠</h1>
+          <p class="sub">価格予測はしません。計算済みの指標を投資家向けに説明します。</p>
+        </div>
+        <form id="ticker-form" class="ticker-form">
+          <label for="ticker-input">ティッカー</label>
+          <div class="input-row">
+            <input id="ticker-input" name="ticker" placeholder="例: 7203.T / AAPL" />
+            <button id="analyze-btn" type="submit">Analyze</button>
+          </div>
+          <p class="hint">BUY/WATCH/PASS を即時表示。AI根拠生成は必要なときだけ実行。</p>
+        </form>
+      </header>
+
+      <section id="result" class="hidden">
+        <div id="decision-card" class="card decision">
+          <div>
+            <p class="label">結論</p>
+            <h2 id="decision-text">—</h2>
+          </div>
+          <div class="score">
+            <p class="label">スコア</p>
+            <p id="score-total">0</p>
+          </div>
+        </div>
+
+        <div class="card" id="rationale-card">
+          <p class="label">AI 根拠</p>
+          <div id="rationale-text" class="rationale"></div>
+        </div>
+
+        <div class="card breakdown">
+          <div class="breakdown-header">
+            <p class="label">スコア内訳</p>
+            <p class="note">テーマ適合・トレンド・リスクを可視化</p>
+          </div>
+          <div id="breakdown-bars" class="bars"></div>
+        </div>
+
+        <details class="card">
+          <summary>生データ（終値・出来高・リスク指標）</summary>
+          <div class="data-grid" id="data-grid"></div>
+        </details>
+
+        <aside class="disclaimer">
+          <p>
+            投資判断は自己責任です。AIは計算済みの事実を説明するのみで、価格予測は行いません。OpenAIの利用上限やAPIキーエラーの場合、簡易説明を表示します。
+          </p>
+        </aside>
+      </section>
+
+      <section id="empty-state" class="empty">
+        <p>ティッカーを入力して「Analyze」を押すと、BUY/WATCH/PASS と根拠が表示されます。</p>
+      </section>
+
+      <section id="error-state" class="hidden error"></section>
+    </main>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>
