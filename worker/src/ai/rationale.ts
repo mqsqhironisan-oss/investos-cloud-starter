@@ -2,8 +2,7 @@ import { ActionDecision } from "../domain/score";
 import { buildUserPrompt, systemPrompt } from "./prompts";
 
 type OpenAIResponse = {
-  output_text?: string;
-  output?: Array<{ content: Array<{ text: string }> }>;
+  choices?: Array<{ message?: { content?: string } }>;
 };
 
 type EnvVars = { OPENAI_API_KEY?: string };
@@ -30,7 +29,7 @@ export async function buildRationale(options: {
   }
 
   try {
-    const response = await fetch("https://api.openai.com/v1/responses", {
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,
@@ -38,12 +37,11 @@ export async function buildRationale(options: {
       },
       body: JSON.stringify({
         model: "gpt-4.1-mini",
-        input: [
-          { role: "system", content: [{ type: "text", text: systemPrompt }] },
-          { role: "user", content: [{ type: "text", text: prompt }] },
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: prompt },
         ],
-        max_output_tokens: 600,
-        response_format: { type: "text" },
+        max_tokens: 600,
       }),
     });
 
@@ -57,8 +55,7 @@ export async function buildRationale(options: {
 
     const data = (await response.json()) as OpenAIResponse;
     const text =
-      data.output_text ??
-      data.output?.[0]?.content?.[0]?.text ??
+      data.choices?.[0]?.message?.content?.trim() ??
       fallbackText(options.decision, options.scoreTotal, options.evidence);
     return text;
   } catch (error) {
