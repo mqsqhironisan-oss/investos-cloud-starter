@@ -1,5 +1,10 @@
 type CacheBinding = KVNamespace | undefined;
 
+type CacheLike = {
+  get(key: string): Promise<string | null>;
+  put(key: string, value: string, options?: { expirationTtl?: number }): Promise<void>;
+};
+
 class MemoryCache {
   private store = new Map<string, { value: string; expiresAt?: number }>();
 
@@ -21,21 +26,21 @@ class MemoryCache {
   }
 }
 
-const fallback = new MemoryCache();
+const fallback: CacheLike = new MemoryCache();
 
-export function getCache(env: { CACHE?: CacheBinding } | Record<string, unknown>): CacheBinding | MemoryCache {
+export function getCache(env: { CACHE?: CacheBinding } | Record<string, unknown>): CacheLike {
   return (env as { CACHE?: CacheBinding }).CACHE ?? fallback;
 }
 
 export async function readThrough<T>(
-  cache: CacheBinding | MemoryCache,
+  cache: CacheLike,
   key: string,
   factory: () => Promise<T>,
   ttlSeconds = 300
 ): Promise<T> {
-  const cached = await (cache as any).get(key);
+  const cached = await cache.get(key);
   if (cached) return JSON.parse(cached) as T;
   const value = await factory();
-  await (cache as any).put(key, JSON.stringify(value), { expirationTtl: ttlSeconds });
+  await cache.put(key, JSON.stringify(value), { expirationTtl: ttlSeconds });
   return value;
 }

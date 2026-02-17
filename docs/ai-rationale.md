@@ -6,7 +6,7 @@
 ## 実装
 - ファイル: `worker/src/ai/rationale.ts`
 - プロンプト: `worker/src/ai/prompts.ts`
-- エンドポイント: OpenAI Responses API (`https://api.openai.com/v1/responses`)
+- エンドポイント: OpenAI Chat Completions (`https://api.openai.com/v1/chat/completions`)
 - モデル: `gpt-4.1-mini`（必要に応じて変更可能）
 - APIキー: `OPENAI_API_KEY`（未設定時はフォールバック文言を返す）
 - 呼び出し抑制: クエリ `skip_ai=1` でAI生成をスキップ
