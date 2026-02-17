@@ -1,0 +1,256 @@
+:root {
+  color-scheme: light dark;
+  --bg: #0f172a;
+  --panel: #111827;
+  --text: #e5e7eb;
+  --muted: #94a3b8;
+  --accent: #38bdf8;
+  --danger: #f87171;
+  --watch: #f59e0b;
+  --success: #34d399;
+  --border: #1f2937;
+  font-family: "Inter", "Noto Sans JP", system-ui, -apple-system, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.08), transparent 35%),
+    radial-gradient(circle at 80% 0%, rgba(244, 114, 182, 0.12), transparent 40%),
+    #0a0f1f;
+  color: var(--text);
+}
+
+.page {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 48px 24px 72px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+header {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.eyebrow {
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  text-transform: uppercase;
+  font-size: 12px;
+  margin: 0;
+}
+
+h1 {
+  margin: 4px 0;
+  font-size: 28px;
+}
+
+.sub {
+  color: var(--muted);
+  margin: 0;
+}
+
+.ticker-form {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 16px;
+  border-radius: 12px;
+}
+
+.ticker-form label {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.input-row {
+  display: flex;
+  gap: 10px;
+  margin: 8px 0 4px;
+}
+
+#ticker-input {
+  flex: 1;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: #0b1222;
+  color: var(--text);
+  font-size: 15px;
+}
+
+#analyze-btn {
+  padding: 12px 18px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(90deg, #38bdf8, #818cf8);
+  color: #0b1222;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.hint {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 0;
+}
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.18);
+}
+
+.decision {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.decision.buy {
+  border-color: rgba(52, 211, 153, 0.5);
+  box-shadow: 0 10px 40px rgba(52, 211, 153, 0.12);
+}
+
+.decision.watch {
+  border-color: rgba(245, 158, 11, 0.5);
+  box-shadow: 0 10px 40px rgba(245, 158, 11, 0.14);
+}
+
+.decision.pass {
+  border-color: rgba(248, 113, 113, 0.5);
+  box-shadow: 0 10px 40px rgba(248, 113, 113, 0.14);
+}
+
+.label {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 0;
+  letter-spacing: 0.05em;
+}
+
+.score p {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 800;
+}
+
+.rationale {
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
+
+.breakdown-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.breakdown .note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.bars {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bar {
+  display: grid;
+  grid-template-columns: 120px 1fr 60px;
+  align-items: center;
+  gap: 10px;
+}
+
+.bar .name {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.bar .track {
+  background: #0b1222;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  height: 12px;
+  overflow: hidden;
+  position: relative;
+}
+
+.bar .fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.bar .value {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.data-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.data-grid .item {
+  background: #0b1222;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.data-grid .item p {
+  margin: 0;
+}
+
+.disclaimer {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.empty,
+.error {
+  text-align: center;
+  color: var(--muted);
+}
+
+.error {
+  color: var(--danger);
+}
+
+.hidden {
+  display: none;
+}
+
+.badge {
+  display: inline-flex;
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+.badge.buy {
+  background: rgba(52, 211, 153, 0.1);
+  color: var(--success);
+}
+
+.badge.watch {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--watch);
+}
+
+.badge.pass {
+  background: rgba(248, 113, 113, 0.12);
+  color: var(--danger);
+}

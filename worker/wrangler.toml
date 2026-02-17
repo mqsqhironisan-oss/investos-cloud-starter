@@ -1,0 +1,21 @@
+name = "investos-cloud-starter-worker"
+main = "src/index.ts"
+compatibility_date = "2025-02-17"
+compatibility_flags = ["nodejs_compat"]
+
+[[rules]]
+globs = ["**/*.html"]
+type = "Text"
+
+[[rules]]
+globs = ["**/*.css"]
+type = "Text"
+
+[[rules]]
+globs = ["**/*.js"]
+type = "Text"
+
+# Uncomment and configure if you attach KV
+# [[kv_namespaces]]
+# binding = "CACHE"
+# id = "your-kv-id"
